@@ -1,0 +1,107 @@
+import numpy as np
+import time
+from itertools import combinations, product
+import cProfile
+import os
+import heapq
+import random
+from collections import deque
+
+from typing_extensions import LiteralString
+class BinPackingData:
+    def __init__(self, file_path, probl):
+        """
+        Construtor da classe. Inicializa o caminho do arquivo e a lista para armazenar problemas.
+        """
+        self.file_path = file_path
+        self.capacidade = 0 # Capacidade do bin
+        self.num_itens = 0 # Número de itens
+        self.num_caixas = 0 # Número de bins na solução melhor conhecida atual
+        self.pesos = [] # valores referentes a cada item
+        self.probl = probl # Problema a ser resolvido
+        self.linha_encontrados = 0 # Número da linha com o início do problema
+
+
+    def leitura(self):
+        """
+        Identifica e define os atributos da classe a partir do arquivo.
+        """
+        with open(self.file_path, 'r') as file:
+            linhas = file.readlines()
+
+            for i, linha in enumerate(linhas):
+                if f"u120_{self.probl}" in linha.strip():
+                    self.linha_encontrados = i
+                    break
+
+            self.capacidade, self.num_itens, self.num_caixas = map(int,
+                             linhas[self.linha_encontrados + 1].strip().split())
+
+            for i in range(self.linha_encontrados + 2, self.linha_encontrados + 2 + self.num_itens):
+                self.pesos.append(int(linhas[i].strip()))
+
+class metodos:
+    def __init__(self, plbm):
+        self.num = plbm.num_itens
+        self.capacidade = plbm.capacidade
+        self.pesos = plbm.pesos
+
+    def little_inst(self):
+        n = 3
+        for x in combinations(self.pesos, n):
+            if sum(x) <= self.capacidade:
+                print(f"os elementos {x} e sua soma {sum(x)} sâo validos")
+
+    def cont_ale(self):
+        pesos_ale = self.pesos[:]
+        random.shuffle(pesos_ale) 
+        sublistas = []
+        sublista_atual = []
+
+        for num in pesos_ale:
+            if sum(sublista_atual) + num > self.capacidade:
+                sublistas.append(sublista_atual)
+                sublista_atual = [num]
+  
+            else:
+                sublista_atual.append(num)
+
+        if sublista_atual:  # Adiciona a última sublista se não estiver vazia
+            sublistas.append(sublista_atual)
+
+        return sublistas
+
+
+    def cons_guloso(self):
+        vetor_ordem = sorted(self.pesos)
+
+        bin_ofc = []
+        bin_atual = []
+
+        for num in vetor_ordem:
+          if sum(bin_atual) + num > self.capacidade:
+            bin_ofc.append(bin_atual)
+            bin_atual = [num]
+          else:
+            bin_atual.append(num)
+        
+        if bin_atual:
+          bin_ofc.append(bin_atual)
+
+        return bin_ofc  
+
+
+
+problema01 = BinPackingData('/content/drive/MyDrive/Colab Notebooks/informacoes_pacotes.txt', probl= "00")
+
+
+problema01.leitura()
+
+metodos01 = metodos(problema01)
+print(metodos01.cont_ale())
+print(metodos01.cons_guloso())
+#metodos01.little_inst()
+#print(problema01.num_itens)
+#print(problema01.capacidade)
+#print(problema01.num_caixas)
+#print(problema01.pesos)
