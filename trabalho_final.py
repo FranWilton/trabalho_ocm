@@ -7,10 +7,8 @@ import heapq
 import random
 from collections import deque
 import math
-
 import random
 from itertools import combinations
-
 
 class BinPackingData:
     """
